@@ -41,7 +41,7 @@ class Danfe extends DaCommon
      *
      * @var boolean
      */
-    protected $exibirValorTributos = true;
+    public $exibirValorTributos = true;
     /**
      * Parâmetro para exibir ou ocultar o texto adicional sobre a forma de pagamento
      * e as informações de fatura/duplicata.
@@ -88,7 +88,7 @@ class Danfe extends DaCommon
      *
      * @var boolean
      */
-    protected $ocultarUnidadeTributavel = false;
+    public $ocultarUnidadeTributavel = false;
     /**
      * XML NFe
      *
