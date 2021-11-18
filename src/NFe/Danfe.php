@@ -88,7 +88,7 @@ class Danfe extends DaCommon
      *
      * @var boolean
      */
-    public $ocultarUnidadeTributavel = false;
+    protected $ocultarUnidadeTributavel = false;
     /**
      * XML NFe
      *
