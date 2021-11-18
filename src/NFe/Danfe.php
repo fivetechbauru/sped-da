@@ -8,7 +8,7 @@ use \NFePHP\DA\Common\DaCommon;
 class Danfe extends DaCommon
 {
     // [FIVETECH]
-    protected $tamanhoFonteValor = 10;
+    protected $tamanhoFonteValor = 9;
     public $exibirFcpSt = true;
     public $exibirDataImpressao=true;
     public $exibirNumero=true;
