@@ -26,6 +26,10 @@ class Danfe extends DaCommon
      * @var bool
      */
     protected $exibirPIS = true;
+
+    // [FIVETECH]
+    public $exibirFcpSt = true;
+
     /**
      * Parâmetro para exibir ou ocultar os valores do ICMS Interestadual e Valor Total dos Impostos.
      *
@@ -64,6 +68,21 @@ class Danfe extends DaCommon
      * @var boolean
      */
     protected $descProdQuebraLinha = true;
+
+    // [FIVETECH]
+    /**
+     * Parâmetro para exibir ou ocultar a data de impresão no rodapé
+     * @var boolean
+     */
+    public $exibirDataImpressao=true;
+
+    /**
+     * Parâmetro para exibir ou ocultar o número da nota
+     * @var boolean
+     */
+    public $exibirNumero=true;
+    // [/FIVETECH]
+
      /**
      * Parâmetro para ocultar a unidade tributável nos itens
      *
@@ -356,9 +375,11 @@ class Danfe extends DaCommon
             if ($this->textoAdic != '') {
                 $this->textoAdic .= ". \n";
             }
-            $this->textoAdic .= ! empty($this->getTagValue($this->infAdic, "infCpl"))
-                //? 'Inf. Contribuinte: ' . $this->anfaveaDANFE($this->getTagValue($this->infAdic, "infCpl"))
-                ? 'Inf. Contribuinte: ' . $this->getTagValue($this->infAdic, "infCpl")
+            // [FIVETECH]
+            $infCpl = str_replace(['<br />', '<br>', '<br/>'], ';', $this->getTagValue($this->infAdic, "infCpl"));
+            $this->textoAdic .= ! empty($infCpl)
+                //? 'Inf. Contribuinte: ' . $this->anfaveaDANFE($infCpl)
+                ? 'Inf. Contribuinte: ' . $infCpl
                 : '';
             $infPedido       = $this->geraInformacoesDaTagCompra();
             if ($infPedido != "") {
@@ -1074,17 +1095,20 @@ class Danfe extends DaCommon
         $texto = $this->ide->getElementsByTagName('tpNF')->item(0)->nodeValue;
         $this->pdf->textBox($x + 27, $y1, 5, $h, $texto, $aFont, 'C', 'C', 1, '');
         //numero da NF
-        $aFont = ['font' => $this->fontePadrao, 'size' => 10, 'style' => 'B'];
-        $y1    = $y + 20;
-        $numNF = str_pad(
-            $this->ide->getElementsByTagName('nNF')->item(0)->nodeValue,
-            9,
-            "0",
-            STR_PAD_LEFT
-        );
-        $numNF = $this->formatField($numNF, "###.###.###");
-        $texto = "Nº. " . $numNF;
-        $this->pdf->textBox($x, $y1, $w, $h, $texto, $aFont, 'C', 'C', 0, '');
+        // [FIVETECH]
+        if ($this->exibirNumero) {
+            $aFont = ['font' => $this->fontePadrao, 'size' => 10, 'style' => 'B'];
+            $y1 = $y + 20;
+            $numNF = str_pad(
+                $this->ide->getElementsByTagName('nNF')->item(0)->nodeValue,
+                9,
+                "0",
+                STR_PAD_LEFT
+            );
+            $numNF = $this->formatField($numNF, "###.###.###");
+            $texto = "Nº. " . $numNF;
+            $this->pdf->textBox($x, $y1, $w, $h, $texto, $aFont, 'C', 'C', 0, '');
+        }
         //Série
         $y1    = $y + 23;
         $serie = str_pad(
@@ -1112,20 +1136,29 @@ class Danfe extends DaCommon
         $chave_acesso = str_replace('NFe', '', $this->infNFe->getAttribute("Id"));
         $bW           = 75;
         $bH           = 12;
-        //codigo de barras
-        $this->pdf->code128($x + (($w - $bW) / 2), $y + 2, $chave_acesso, $bW, $bH);
-        //linhas divisorias
-        $this->pdf->line($x, $y + 4 + $bH, $x + $w, $y + 4 + $bH);
-        $this->pdf->line($x, $y + 12 + $bH, $x + $w, $y + 12 + $bH);
+        // [FIVETECH]
+        if ($this->exibirNumero) {
+            //codigo de barras
+            $this->pdf->code128($x + (($w - $bW) / 2), $y + 2, $chave_acesso, $bW, $bH);
+            //linhas divisorias
+            $this->pdf->line($x, $y + 4 + $bH, $x + $w, $y + 4 + $bH);
+            $this->pdf->line($x, $y + 12 + $bH, $x + $w, $y + 12 + $bH);
+        }
         $aFont = ['font' => $this->fontePadrao, 'size' => 6, 'style' => ''];
         $y1    = $y + 4 + $bH;
         $h     = 7;
-        $texto = 'CHAVE DE ACESSO';
-        $this->pdf->textBox($x, $y1, $w, $h, $texto, $aFont, 'T', 'L', 0, '');
+        // [FIVETECH]
+        if ($this->exibirNumero) {
+            $texto = 'CHAVE DE ACESSO';
+            $this->pdf->textBox($x, $y1, $w, $h, $texto, $aFont, 'T', 'L', 0, '');
+        }
         $aFont = ['font' => $this->fontePadrao, 'size' => 8, 'style' => 'B'];
         $y1    = $y + 8 + $bH;
         $texto = $this->formatField($chave_acesso, $this->formatoChave);
-        $this->pdf->textBox($x + 2, $y1, $w - 2, $h, $texto, $aFont, 'T', 'C', 0, '');
+        // [FIVETECH]
+        if ($this->exibirNumero) {
+            $this->pdf->textBox($x + 2, $y1, $w - 2, $h, $texto, $aFont, 'T', 'C', 0, '');
+        }
         $y1                = $y + 12 + $bH;
         $aFont             = ['font' => $this->fontePadrao, 'size' => 8, 'style' => ''];
         $chaveContingencia = "";
@@ -2205,12 +2238,17 @@ class Danfe extends DaCommon
     {
         $x_inicial = $x;
         //#####################################################################
-        $campos_por_linha = 9;
+        // [FIVETECH]
+        $campos_por_linha = 10;
         if (! $this->exibirPIS) {
             $campos_por_linha --;
         }
         if (! $this->exibirIcmsInterestadual) {
             $campos_por_linha -= 2;
+        }
+        // [FIVETECH]
+        if (!$this->exibirFcpSt) {
+            $campos_por_linha--;
         }
 
         if ($this->orientacao == 'P') {
@@ -2232,6 +2270,12 @@ class Danfe extends DaCommon
         $x = $this->impostoHelper($x, $y, $w, $h, "VALOR DO ICMS", "vICMS");
         $x = $this->impostoHelper($x, $y, $w, $h, "BASE DE CÁLC. ICMS S.T.", "vBCST");
         $x = $this->impostoHelper($x, $y, $w, $h, "VALOR DO ICMS SUBST.", "vST");
+
+        // [FIVETECH]
+        if ($this->exibirFcpSt) {
+            $x = $this->impostoHelper($x, $y, $w, $h, "V. FCP ST", "vFCPST");
+        }
+
         $x = $this->impostoHelper($x, $y, $w, $h, "V. IMP. IMPORTAÇÃO", "vII");
 
         if ($this->exibirIcmsInterestadual) {
@@ -2254,6 +2298,12 @@ class Danfe extends DaCommon
         $x = $this->impostoHelper($x, $y, $w, $h, "VALOR DO SEGURO", "vSeg");
         $x = $this->impostoHelper($x, $y, $w, $h, "DESCONTO", "vDesc");
         $x = $this->impostoHelper($x, $y, $w, $h, "OUTRAS DESPESAS", "vOutro");
+
+        // [FIVETECH]
+        if ($this->exibirFcpSt) {
+            $x = $this->impostoHelper($x, $y, $w, $h, "V. FCP", "vFCP");
+        }
+
         $x = $this->impostoHelper($x, $y, $w, $h, "VALOR TOTAL IPI", "vIPI");
 
         if ($this->exibirIcmsInterestadual) {
@@ -2689,8 +2739,26 @@ class Danfe extends DaCommon
         $nFCI   = (! empty($itemProd->getElementsByTagName('nFCI')->item(0)->nodeValue)) ?
             ' FCI:' . $itemProd->getElementsByTagName('nFCI')->item(0)->nodeValue : '';
         $tmp_ad = $infAdProd . ($this->descProdInfoComplemento ? $loteTxt . $impostos . $nFCI : '');
-        $texto  = $prod->getElementsByTagName("xProd")->item(0)->nodeValue
-            . (strlen($tmp_ad) != 0 ? "\n    " . $tmp_ad : '');
+
+        // [FIVETECH]
+        $texto = $prod->getElementsByTagName("xProd")->item(0)->nodeValue;
+
+        if ($prod->getElementsByTagName("xPed")->length > 0) {
+            $nPed = $prod->getElementsByTagName("xPed")->item(0)->nodeValue;
+            if (!empty($nPed)) {
+                $texto .= " - {$nPed}";
+            }
+        }
+
+        if ($prod->getElementsByTagName("nItemPed")->length > 0) {
+            $nItemPed = $prod->getElementsByTagName("nItemPed")->item(0)->nodeValue;
+            if (!empty($nItemPed)) {
+                $texto .= " - {$nItemPed}";
+            }
+        }
+
+        $texto = $texto . (strlen($tmp_ad)!=0?"\n    ".$tmp_ad:'');
+
         //decodifica os caracteres html no xml
         $texto = html_entity_decode($texto);
         if ($this->descProdQuebraLinha) {
@@ -3466,11 +3534,14 @@ class Danfe extends DaCommon
             $x = $this->wCanhoto;
         }
         $aFont = ['font' => $this->fontePadrao, 'size' => 6, 'style' => 'I'];
-        $texto = "Impresso em " . date('d/m/Y') . " as " . date('H:i:s')
-            . '  ' . $this->creditos;
-        $this->pdf->textBox($x, $y, $w, 0, $texto, $aFont, 'T', 'L', false);
-        $texto = $this->powered ? "Powered by NFePHP®" : '';
-        $this->pdf->textBox($x, $y, $w, 0, $texto, $aFont, 'T', 'R', false, '');
+        // [FIVETECH]
+        if ($this->exibirDataImpressao) {
+            $texto = "Impresso em " . date('d/m/Y') . " as " . date('H:i:s')
+                . '  ' . $this->creditos;
+            $this->pdf->textBox($x, $y, $w, 0, $texto, $aFont, 'T', 'L', false);
+        }
+        //$texto = $this->powered ? "Powered by NFePHP®" : '';
+        //$this->pdf->textBox($x, $y, $w, 0, $texto, $aFont, 'T', 'R', false, '');
     }
 
     /**
@@ -3568,8 +3639,13 @@ class Danfe extends DaCommon
             $texto = "NF-e";
             $aFont = ['font' => $this->fontePadrao, 'size' => 14, 'style' => 'B'];
             $this->pdf->textBox($x1, $y, $w1, 18, $texto, $aFont, 'T', 'C', 0, '');
-            $texto = "Nº. " . $this->formatField($numNF, "###.###.###") . " \n";
-            $texto .= "Série $serie";
+            // [FIVETECH]
+            if ($this->exibirNumero) {
+                $texto = "Nº. " . $this->formatField($numNF, "###.###.###") . " \n";
+                $texto .= "Série $serie";
+            } else {
+                $texto = "";
+            }
             $aFont = ['font' => $this->fontePadrao, 'size' => 10, 'style' => 'B'];
             $this->pdf->textBox($x1, $y, $w1, 18, $texto, $aFont, 'C', 'C', 1, '');
             //DATA DE RECEBIMENTO
