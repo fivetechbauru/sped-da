@@ -128,11 +128,10 @@ class Damdfe extends DaCommon
             $this->aquav = $this->dom->getElementsByTagName("aquav")->item(0);
             $this->ferrov = $this->dom->getElementsByTagName("ferrov")->item(0);
             if (!empty($this->rodo)) {
+                $this->RNTRC = "";
                 $infANTT = $this->rodo->getElementsByTagName("infANTT")->item(0);
-                try {
+                if (!empty($infANTT)) {
                     $this->RNTRC = $infANTT->getElementsByTagName("RNTRC")->item(0)->nodeValue;
-                } catch (\Exception $e) {
-                    $this->RNTRC = "";
                 }
             }
             $this->ciot = "";
