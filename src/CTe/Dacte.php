@@ -33,6 +33,7 @@ class Dacte extends DaCommon
     protected $infCte;
     protected $infCteComp;
     protected $infCteAnu;
+    protected $infCteSub;
     protected $chaveCTeRef;
     protected $tpCTe;
     protected $ide;
@@ -86,6 +87,17 @@ class Dacte extends DaCommon
     protected $margemInterna = 0;
     protected $formatoChave = "#### #### #### #### #### #### #### #### #### #### ####";
 
+    protected $cteProc;
+    protected $aereo;
+    protected $lota;
+    protected $infOutros;
+    protected $toma;
+    protected $enderToma;
+    protected $protCTe;
+    protected $formatPadrao;
+    protected $wCanhoto;
+    protected $arrayNF;
+
     /**
      * __construct
      *
@@ -93,8 +105,7 @@ class Dacte extends DaCommon
      */
     public function __construct(
         $xml = ''
-    )
-    {
+    ) {
         $this->loadDoc($xml);
     }
 
@@ -136,10 +147,14 @@ class Dacte extends DaCommon
             // adicionar outros modais
             $this->infCteComp = $this->dom->getElementsByTagName("infCteComp")->item(0);
             $this->infCteAnu = $this->dom->getElementsByTagName("infCteAnu")->item(0);
+            $this->infCteSub = $this->dom->getElementsByTagName("infCteSub")->item(0);
+            // 0 - CT-e Normal; 1 - CT-e de Complemento de Valores; 2 - CT-e de Anulação; 3 - CT-e Substituto
             if ($this->tpCTe == 1) {
                 $this->chaveCTeRef = $this->getTagValue($this->infCteComp, "chCTe");
-            } else {
+            } elseif ($this->tpCTe == 2) {
                 $this->chaveCTeRef = $this->getTagValue($this->infCteAnu, "chCte");
+            } elseif ($this->tpCTe == 3) {
+                $this->chaveCTeRef = $this->getTagValue($this->infCteSub, "chCte");
             }
             $this->vPrest = $this->dom->getElementsByTagName("vPrest")->item(0);
             $this->Comp = $this->dom->getElementsByTagName("Comp");
@@ -196,7 +211,6 @@ class Dacte extends DaCommon
             $this->tpEmis = $this->getTagValue($this->ide, "tpEmis");
             $this->tpImp = $this->getTagValue($this->ide, "tpImp");
             $this->tpAmb = $this->getTagValue($this->ide, "tpAmb");
-            $this->tpCTe = $this->getTagValue($this->ide, "tpCTe");
             $this->qrCodCTe = $this->dom->getElementsByTagName('qrCodCTe')->item(0) ?
                 $this->dom->getElementsByTagName('qrCodCTe')->item(0)->nodeValue : 'SEM INFORMAÇÃO DE QRCODE';
             $this->protCTe = $this->dom->getElementsByTagName("protCTe")->item(0);
@@ -220,8 +234,7 @@ class Dacte extends DaCommon
      */
     protected function monta(
         $logo = ''
-    )
-    {
+    ) {
         if (!empty($logo)) {
             $this->logomarca = $this->adjustImage($logo);
         }
@@ -3700,7 +3713,7 @@ class Dacte extends DaCommon
             $foneLen = strlen($fone);
             if ($foneLen == 11 && $fone[0] != 0) {
                 $fone = '(' . substr($fone, 0, 2) . ') ' . substr($fone, 2, 5) . '-' . substr($fone, 7);
-            } else if ($foneLen > 0) {
+            } elseif ($foneLen > 0) {
                 $fone2 = substr($fone, 0, $foneLen - 4);
                 $fone1 = substr($fone, 0, $foneLen - 8);
                 $fone = '(' . $fone1 . ') ' . substr($fone2, -4) . '-' . substr($fone, -4);
