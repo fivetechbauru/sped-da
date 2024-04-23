@@ -2264,7 +2264,7 @@ class Danfe extends DaCommon
                 if (isset($the_field_aux)) {
                     $value2 = $the_field_aux->nodeValue;
                 }
-            } else if ($campoImposto == 'vST') { // soma junto ao ICMS ST o FCP ST
+            } else if ($campoImposto == 'vST' && !$this->exibirFcpSt) { // soma junto ao ICMS ST o FCP ST
                 $the_field_aux = $this->ICMSTot->getElementsByTagName('vFCPST')->item(0);
                 if (isset($the_field_aux)) {
                     $value2 = $the_field_aux->nodeValue;
