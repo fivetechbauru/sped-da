@@ -70,7 +70,7 @@ class Damdfe extends DaCommon
     protected $aquav;
     protected $ferrov;
     protected $RNTRC;
-    protected $ciot;
+    protected $infCIOT;
     protected $veicTracao;
     protected $veicReboque;
     protected $valePed;
@@ -182,9 +182,9 @@ class Damdfe extends DaCommon
                     }
                 }
             }
-            $this->ciot = "";
-            if ($this->dom->getElementsByTagName('CIOT')->item(0) != "") {
-                $this->ciot = $this->dom->getElementsByTagName('CIOT')->item(0)->nodeValue;
+            $this->infCIOT = [];
+            if ($this->dom->getElementsByTagName('infCIOT')->item(0) != "") {
+                $this->infCIOT = $this->dom->getElementsByTagName('infCIOT');
             }
             $this->veicTracao = $this->dom->getElementsByTagName("veicTracao")->item(0);
             $this->veicReboque = $this->dom->getElementsByTagName("veicReboque");
@@ -883,7 +883,16 @@ class Damdfe extends DaCommon
         } else {
             $texto = 'DAMDFE impresso em contingência - ' . date('d/m/Y   H:i:s');
         }
-        $this->pdf->textBox($x, $y + 4, $maxW / 2, 8, $texto, $aFont, 'T', 'L', 0, '');
+        $this->pdf->textBox($x, $y + 4, $maxW / 2, 4, $texto, $aFont, 'T', 'L', 0, '');
+
+        $aFont = array('font' => $this->fontePadrao, 'size' => 8, 'style' => 'B');
+        $this->pdf->textBox($x1, $y + 8.5, $x2, 4, 'CIOT', $aFont, 'T', 'L', 0, '', false);
+        $ciots = [];
+        foreach ($this->infCIOT as $ciot) {
+            $ciots[] = $ciot->nodeValue;
+        }
+        $aFont = array('font' => $this->fontePadrao, 'size' => 9, 'style' => '');
+        $this->pdf->textBox($x, $y + 11.5, $maxW / 2, 4, implode(', ', $ciots), $aFont, 'T', 'L', 0, '');
 
         $y -= 4;
 
