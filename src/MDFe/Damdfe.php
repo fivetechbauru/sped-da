@@ -19,6 +19,7 @@ use Com\Tecnick\Barcode\Barcode;
 use NFePHP\DA\Common\DaCommon;
 use NFePHP\DA\Legacy\Dom;
 use NFePHP\DA\Legacy\Pdf;
+use NFePHP\Common\Keys;
 
 class Damdfe extends DaCommon
 {
@@ -194,11 +195,7 @@ class Damdfe extends DaCommon
             }
             $this->infCpl = ($infCpl = $this->dom->getElementsByTagName('infCpl')->item(0)) ? $infCpl->nodeValue : "";
             $this->infAdFisco = ($infAdFisco = $this->dom->getElementsByTagName('infAdFisco')->item(0)) ? $infAdFisco->nodeValue : "";
-            $this->chMDFe = str_replace(
-                'MDFe',
-                '',
-                $this->infMDFe->getAttribute("Id")
-            );
+            $this->chMDFe = Keys::extractAccessKey($this->infMDFe->getAttribute("Id"));
             $this->qrCodMDFe = $this->dom->getElementsByTagName('qrCodMDFe')->item(0) ?
                 $this->dom->getElementsByTagName('qrCodMDFe')->item(0)->nodeValue : 'SEM INFORMAÇÃO DE QRCODE';
             if (is_object($this->mdfeProc)) {
@@ -361,7 +358,7 @@ class Damdfe extends DaCommon
         if (isset($this->CPF)) {
             $cpfcnpj = 'CPF: ' . $this->formatField($this->CPF, "###.###.###-##");
         } else {
-            $cpfcnpj = 'CNPJ: ' . $this->formatField($this->CNPJ, "###.###.###/####-##");
+            $cpfcnpj = 'CNPJ: ' . $this->formatField($this->CNPJ, "##.###.###/####-##");
         }
         $ie = 'IE: ' . (strlen($this->IE) == 9
                 ? $this->formatField($this->IE, '###/#######')
@@ -584,7 +581,7 @@ class Damdfe extends DaCommon
         if (isset($this->CPF)) {
             $cpfcnpj = 'CPF: ' . $this->formatField($this->CPF, "###.###.###-##");
         } else {
-            $cpfcnpj = 'CNPJ: ' . $this->formatField($this->CNPJ, "###.###.###/####-##");
+            $cpfcnpj = 'CNPJ: ' . $this->formatField($this->CNPJ, "##.###.###/####-##");
         }
         $ie = 'IE: ' . (strlen($this->IE) == 9
                 ? $this->formatField($this->IE, '###/#######')

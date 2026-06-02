@@ -19,6 +19,7 @@ use Com\Tecnick\Barcode\Barcode;
 use Exception;
 use NFePHP\DA\Legacy\Dom;
 use NFePHP\DA\Legacy\Pdf;
+use NFePHP\Common\Keys;
 use NFePHP\DA\Common\DaCommon;
 
 class Dacte extends DaCommon
@@ -230,7 +231,7 @@ class Dacte extends DaCommon
      *                impressão (ex. P-retrato), se nada for fornecido será
      *                usado o padrão da NFe
      * @param string $papel (Opcional) Estabelece o tamanho do papel (ex. A4)
-     * @return string O ID da NFe numero de 44 digitos extraido do arquivo XML
+     * @return string O ID da NFe de 44 caracteres extraído do arquivo XML
      */
     protected function monta(
         $logo = ''
@@ -833,7 +834,7 @@ class Dacte extends DaCommon
         $h1 = 14;
         $this->pdf->textBox($x, $y, $w + 0.5, $h1);
         //CODIGO DE BARRAS
-        $chave_acesso = str_replace('CTe', '', $this->infCte->getAttribute("Id"));
+        $chave_acesso = Keys::extractAccessKey($this->infCte->getAttribute("Id"));
         $bW = 85;
         $bH = 10;
         //codigo de barras
@@ -2049,7 +2050,7 @@ class Dacte extends DaCommon
         $rpos = strrpos($dd, '-');
         $dd = substr($dd, $rpos + 1);
         $chave = sprintf($forma, $cUF, $this->tpEmis, $CNPJ, $vCT, $ICMSp, $ICMSs, $dd);
-        $chave = $chave . $this->modulo11($chave);
+        $chave = $chave . Keys::verifyingDigit($chave);
         return $chave;
     }
 
@@ -3731,10 +3732,10 @@ class Dacte extends DaCommon
         $cnpj = !empty($field->getElementsByTagName("CNPJ")->item(0)->nodeValue) ?
             $field->getElementsByTagName("CNPJ")->item(0)->nodeValue : "";
         if ($cnpj != "" && $cnpj != "00000000000000") {
-            $cnpj = $this->formatField($cnpj, '###.###.###/####-##');
+            $cnpj = $this->formatField($cnpj, '##.###.###/####-##');
         } else {
             $cnpj = !empty($field->getElementsByTagName("CPF")->item(0)->nodeValue) ?
-                $this->formatField($field->getElementsByTagName("CPF")->item(0)->nodeValue, '###.###.###.###-##') : '';
+                $this->formatField($field->getElementsByTagName("CPF")->item(0)->nodeValue, '###.###.###-##') : '';
         }
         return $cnpj;
     }
