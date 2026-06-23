@@ -32,7 +32,6 @@
         "php": ">= 7.4",
         "ext-dom": "*",
         "ext-gd": "*",
-        "ext-mbstring": "*",
         "tecnickcom/tc-lib-barcode": "^1",
         "nfephp-org/sped-common": "^5.1.0"
     },
@@ -41,8 +40,7 @@
         "phpunit/phpunit": "^9.3",
         "scrutinizer/ocular": "^1.8",
         "phpstan/phpstan": "^1.4",
-        "sebastian/phpcpd": "^6.0",
-        "smalot/pdfparser": "^2.12"
+        "sebastian/phpcpd": "^6.0"
     },
     "suggest": {
         "nfephp-org/posprint": "^0.1"

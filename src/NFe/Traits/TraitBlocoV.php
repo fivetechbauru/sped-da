@@ -25,13 +25,13 @@ trait TraitBlocoV
             }
         } else {
             $tipo = $this->pagType((int) $this->getTagValue($this->pag, 'tPag'));
-            $valor = number_format((float) $this->getTagValue($this->pag, 'vPag'), 2, ',', '.');
+            $valor = number_format((float) $this->getTagValue($pgto, 'vPag'), 2, ',', '.');
             $arpgto[] = [
                 'tipo' => $tipo,
                 'valor' => $valor
             ];
         }
-        $aFont = ['font'=> $this->fontePadrao, 'size' => 7, 'style' => 'B'];
+        $aFont = ['font'=> $this->fontePadrao, 'size' => 7, 'style' => ''];
         $texto = "FORMA PAGAMENTO";
         $this->pdf->textBox($this->margem, $y, $this->wPrint, 4, $texto, $aFont, 'T', 'L', false, '', false);
         $texto = "VALOR PAGO R$";
@@ -39,9 +39,7 @@ trait TraitBlocoV
 
         $z = $y + $y1;
         foreach ($arpgto as $p) {
-            $aFont = ['font'=> $this->fontePadrao, 'size' => 6, 'style' => ''];
             $this->pdf->textBox($this->margem, $z, $this->wPrint, 3, $p['tipo'], $aFont, 'T', 'L', false, '', false);
-            $aFont = ['font'=> $this->fontePadrao, 'size' => 7, 'style' => ''];
             $y2 = $this->pdf->textBox(
                 $this->margem,
                 $z,
@@ -63,6 +61,7 @@ trait TraitBlocoV
         $texto =  !empty($this->vTroco) ? number_format((float) $this->vTroco, 2, ',', '.') : '0,00';
         $y1 = $this->pdf->textBox($this->margem, $z, $this->wPrint, 3, $texto, $aFont, 'T', 'R', false, '', false);
 
+
         $this->pdf->dashedHLine($this->margem, $this->bloco5H+$y, $this->wPrint, 0.1, 30);
         return $this->bloco5H + $y;
     }
@@ -74,24 +73,20 @@ trait TraitBlocoV
             2 => 'Cheque',
             3 => 'Cartão de Crédito',
             4 => 'Cartão de Débito',
-            5 => 'Cartão da Loja/Outros Crediários',
+            5 => 'Crédito Loja',
             10 => 'Vale Alimentação',
             11 => 'Vale Refeição',
             12 => 'Vale Presente',
             13 => 'Vale Combustível',
             15 => 'Boleto Bancário',
             16 => 'Depósito Bancário',
-            17 => 'Pagamento Instantâneo (PIX) - Dinâmico',
+            17 => 'Pagamento Instantâneo (PIX)',
             18 => 'Transferência bancária, Carteira Digital',
-            19 => 'Programa fidelidade, Cashback, Créd Virt',
-            20 => 'Pagamento Instantâneo (PIX) - Estático',
-            21 => 'Crédito em Loja',
-            22 => 'Pagamento Eletrônico não Informado - falha de hardware do sistema emissor',
+            19 => 'Programa de fidelidade, Cashback, Crédito Virtual',
             90 => 'Sem pagamento',
-            91 => 'Pagamento Posterior',
             99 => 'Outros',
         ];
-        return mb_strtoupper($lista[$type]);
+        return $lista[$type];
     }
 
     protected function calculateHeightPag()

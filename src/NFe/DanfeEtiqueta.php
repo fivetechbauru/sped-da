@@ -7,7 +7,6 @@ use InvalidArgumentException;
 use NFePHP\DA\Common\DaCommon;
 use NFePHP\DA\Legacy\Dom;
 use NFePHP\DA\Legacy\Pdf;
-use NFePHP\Common\Keys;
 
 class DanfeEtiqueta extends DaCommon
 {
@@ -194,6 +193,7 @@ class DanfeEtiqueta extends DaCommon
         $y = $this->bloco3($y);
         $y = $this->bloco4($y);
         $y = $this->bloco5($y);
+        $y = $this->bloco6($y);
     }
 
     protected function bloco1($y)
@@ -242,7 +242,7 @@ class DanfeEtiqueta extends DaCommon
         $emitIE = $this->getTagValue($this->emit, "IE");
         $emitCnpj = $this->formatField(
             $this->getTagValue($this->emit, "CNPJ"),
-            "##.###.###/####-##"
+            "###.###.###/####-##"
         );
         $emitLgr = $this->getTagValue($this->enderEmit, "xLgr");
         $emitNro = $this->getTagValue($this->enderEmit, "nro");
@@ -251,8 +251,11 @@ class DanfeEtiqueta extends DaCommon
         $emitUF = $this->getTagValue($this->enderEmit, "UF");
         $emitFone = $this->getTagValue($this->enderEmit, "fone");
         if (strlen($emitFone) > 0) {
-            $format = strlen($emitFone) >= 11 ? "(##) #####-####" : "(##) ####-####";
-            $emitFone = $this->formatField($emitFone, $format);
+            if (strlen($emitFone) == 11) {
+                $emitFone = $this->formatField($emitFone, "(##) #####-####");
+            } else {
+                $emitFone = $this->formatField($emitFone, "(##) ####-####");
+            }
         }
         $h = 20;
         $maxHimg = $h-2;
@@ -311,7 +314,7 @@ class DanfeEtiqueta extends DaCommon
     protected function bloco3($y)
     {
         $this->pdf->setFillColor(0, 0, 0);
-        $chave_acesso = Keys::extractAccessKey($this->infNFe->getAttribute("Id"));
+        $chave_acesso = str_replace('NFe', '', $this->infNFe->getAttribute("Id"));
         $bW = $this->wPrint - ($this->margem * 2) - 9;
         $bH = 12;
         $x = $this->margem;
@@ -351,7 +354,7 @@ class DanfeEtiqueta extends DaCommon
         $texto = $this->dest->getElementsByTagName("xNome")->item(0)->nodeValue;
         $this->pdf->textBox($this->margem + 5, $y+5, $this->wPrint, 7, $texto, $aFont, 'T', 'L', 0, '');
         $cnpj = !empty($this->dest->getElementsByTagName("CNPJ")->item(0))
-            ? $this->formatField($this->dest->getElementsByTagName("CNPJ")->item(0)->nodeValue, "##.###.###/####-##")
+            ? $this->formatField($this->dest->getElementsByTagName("CNPJ")->item(0)->nodeValue, "###.###.###/####-##")
             : null;
         $cpf = !empty($this->dest->getElementsByTagName("CPF")->item(0))
             ? $this->formatField($this->dest->getElementsByTagName("CPF")->item(0)->nodeValue, '###.###.###-##')
@@ -372,13 +375,15 @@ class DanfeEtiqueta extends DaCommon
         $destMun = $this->getTagValue($this->enderDest, "xMun");
         $destUF = $this->getTagValue($this->enderDest, "UF");
         $destFone = $this->getTagValue($this->enderDest, "fone");
-        $destCep = $this->getTagValue($this->enderDest, "CEP");
         if (strlen($destFone) > 0) {
-            $format = strlen($destFone) >= 11 ? "(##) #####-####" : "(##) ####-####";
-            $destFone = $this->formatField($destFone, $format);
+            if (strlen($destFone) == 11) {
+                $emitFone = $this->formatField($destFone, "(##) #####-####");
+            } else {
+                $emitFone = $this->formatField($destFone, "(##) ####-####");
+            }
         }
         $aFont = ['font' => $this->fontePadrao, 'size' => 10, 'style' => ''];
-        $texto = "{$destLgr}, {$destNro} - CEP: {$destCep}";
+        $texto = $destLgr . ", " . $destNro;
         $y += $this->pdf->textBox($this->margem + 5, $y, $this->wPrint, 3, $texto, $aFont, 'T', 'L', false, '', true);
         $texto = $destBairro;
         $y += $this->pdf->textBox($this->margem + 5, $y, $this->wPrint, 3, $texto, $aFont, 'T', 'L', false, '', true);
@@ -389,6 +394,16 @@ class DanfeEtiqueta extends DaCommon
     }
 
     protected function bloco5($y)
+    {
+        $total = number_format($this->getTagValue($this->ICMSTot, 'vNF'), 2, ',', '.');
+        $texto = "Valor TOTAL da NFe: R$ $total";
+        $aFont = ['font' => $this->fontePadrao, 'size' => 10, 'style' => 'B'];
+        $y += $this->pdf->textBox($this->margem, $y, $this->wPrint, 6, $texto, $aFont, 'C', 'C', false, '', true);
+        $this->pdf->line($this->margem, $y+3, $this->wPrint+$this->margem, $y+2);
+        return $y+2;
+    }
+
+    protected function bloco6($y)
     {
         if (!empty($this->compra)) {
             $pedido = $this->getTagValue($this->compra, 'xPed');

@@ -2,8 +2,6 @@
 
 namespace NFePHP\DA\NFe\Traits;
 
-use NFePHP\Common\Keys;
-
 /**
  * Bloco VI informações de chave de acesso
  */
@@ -48,7 +46,7 @@ trait TraitBlocoVI
             false
         );
         
-        $chave =  Keys::extractAccessKey($this->infNFe->getAttribute("Id"));
+        $chave =  str_replace('NFe', '', $this->infNFe->getAttribute("Id"));
         $texto = $this->formatField($chave, $this->formatoChave);
         $aFont = ['font'=> $this->fontePadrao, 'size' => 7, 'style' => ''];
         $y3 = $this->pdf->textBox(

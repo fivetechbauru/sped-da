@@ -4,6 +4,7 @@ namespace NFePHP\DA\Legacy;
 
 class Common
 {
+
     /**
      * Extrai o valor do node DOM
      * @param  object $theObj Instancia de DOMDocument ou DOMElement
@@ -23,7 +24,7 @@ class Common
             $value = trim($vct->nodeValue);
             if (strpos($value, '&') !== false) {
                 //existe um & na string, então deve ser uma entidade
-                $value = html_entity_decode($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+                $value = html_entity_decode($value);
             }
             return $extraTextBefore . $value . $extraTextAfter;
         }
@@ -49,6 +50,33 @@ class Common
             return $extraText . $theDate[2] . "/" . $theDate[1] . "/" . $theDate[0];
         }
         return '';
+    }
+
+    /**
+     * camcula digito de controle modulo 11
+     * @param  string $numero
+     * @return integer modulo11 do numero passado
+     */
+    protected function modulo11($numero = '')
+    {
+        if ($numero == '') {
+            return '';
+        }
+        $numero = (string) $numero;
+        $tamanho = strlen($numero);
+        $soma = 0;
+        $mult = 2;
+        for ($i = $tamanho - 1; $i >= 0; $i--) {
+            $digito = (int) $numero[$i];
+            $r = $digito * $mult;
+            $soma += $r;
+            $mult++;
+            if ($mult == 10) {
+                $mult = 2;
+            }
+        }
+        $resto = ($soma * 10) % 11;
+        return ($resto == 10 || $resto == 0) ? 1 : $resto;
     }
 
     /**
@@ -95,34 +123,14 @@ class Common
      *
      * @param string $input
      *
-     * @return \DateTime|false
+     * @return \DateTime
      */
     public function toDateTime($input)
     {
-        if (PHP_MAJOR_VERSION > 7) {
-            try {
-                return new \DateTime($input);
-            } catch (\Exception $e) {
-                return false;
-            }
-        }
-
-        return $this->toDateTimeLegacy($input);
-    }
-
-    private function toDateTimeLegacy($input)
-    {
-        $quantidadeColons = substr_count($input, ':');
-
-        $format = "Y-m-d\TH:i:sP";
-        if ($quantidadeColons == 2) {
-            $format = "Y-m-d\TH:i:s";
-        }
-
         try {
-            return \DateTime::createFromFormat($format, $input);
+            return \DateTime::createFromFormat("Y-m-d\TH:i:sP", $input);
         } catch (\Exception $e) {
-            return false;
+            return null;
         }
     }
 
@@ -230,7 +238,7 @@ class Common
                 $tPagNome = 'Cartão de Débito';
                 break;
             case '05':
-                $tPagNome = 'Cartão da Loja/Outros Crediários';
+                $tPagNome = 'Crédito Loja';
                 break;
             case '10':
                 $tPagNome = 'Vale Alimentação';
@@ -254,22 +262,13 @@ class Common
                 $tPagNome = 'Depósito Bancário';
                 break;
             case '17':
-                $tPagNome = 'PIX Dinâmico';
+                $tPagNome = 'Pagamento Instantâneo (PIX)';
                 break;
             case '18':
-                $tPagNome = 'Transferência bancária, Carteira Digit.';
+                $tPagNome = 'Transferência bancária, Carteira Digital';
                 break;
             case '19':
-                $tPagNome = 'Programa de fidelidade, Cashback, Crédito Virt.';
-                break;
-            case '20':
-                $tPagNome = 'PIX Estático';
-                break;
-            case '21':
-                $tPagNome = 'Crédito em Loja';
-                break;
-            case '22':
-                $tPagNome = 'Pagamento Eletrônico não Informado - Falha de hardware';
+                $tPagNome = 'Programa de fidelidade, Cashback, Crédito Virtual';
                 break;
             case '90':
                 $tPagNome = 'Sem Pagamento';

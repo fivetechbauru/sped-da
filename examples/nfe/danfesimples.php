@@ -10,7 +10,6 @@ $xml = file_get_contents(__DIR__ . '/fixtures/mod55-nfe.xml');
 try {
     $danfe = new DanfeSimples($xml);
     $danfe->debugMode(false);
-
     $pdf = $danfe->render();
     header('Content-Type: application/pdf');
     echo $pdf;
